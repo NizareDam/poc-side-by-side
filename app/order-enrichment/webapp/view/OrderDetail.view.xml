@@ -1,0 +1,223 @@
+<!--
+    ============================================================================
+     PAGE DÉTAIL — Fiche commande enrichie
+    ============================================================================
+
+    Cette vue utilise un ObjectPageLayout (Fiori guideline) pour afficher
+    la fiche complète d'une commande avec :
+
+     Section 1 : Données ERP (provenant de S/4HANA — mockées)
+     Section 2 : Enrichissement BTP (priorité, score de risque)
+     Section 3 : Intégration externe (statut de livraison mock)
+
+    Chaque section est clairement séparée pour la pédagogie.
+-->
+<mvc:View
+    controllerName="sap.btp.orderenrichment.controller.OrderDetail"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:uxap="sap.uxap"
+    xmlns:layout="sap.ui.layout"
+    xmlns:f="sap.f">
+
+    <Page
+        id="orderDetailPage"
+        title="Détail de la commande"
+        showNavButton="true"
+        navButtonPress=".onNavBack">
+
+        <content>
+            <uxap:ObjectPageLayout id="objectPageLayout"
+                                    upperCaseAnchorBar="false"
+                                    showTitleInHeaderContent="true">
+
+                <!-- En-tête de la fiche -->
+                <uxap:headerTitle>
+                    <uxap:ObjectPageDynamicHeaderTitle>
+                        <uxap:heading>
+                            <Title text="{orderNumber} — {customerName}" />
+                        </uxap:heading>
+                        <uxap:expandedContent>
+                            <HBox>
+                                <ObjectStatus
+                                    text="{priority}"
+                                    state="{= ${priority} === 'HIGH' ? 'Error' : (${priority} === 'MEDIUM' ? 'Warning' : 'Success') }"
+                                    icon="{= ${priority} === 'HIGH' ? 'sap-icon://warning' : (${priority} === 'MEDIUM' ? 'sap-icon://hint' : 'sap-icon://accept') }"
+                                    class="sapUiSmallMarginEnd" />
+                                <ObjectStatus
+                                    text="{status}"
+                                    state="{= ${status} === 'Confirmée' ? 'Success' : (${status} === 'Annulée' ? 'Error' : (${status} === 'En attente' ? 'Warning' : 'Information')) }" />
+                            </HBox>
+                        </uxap:expandedContent>
+                    </uxap:ObjectPageDynamicHeaderTitle>
+                </uxap:headerTitle>
+
+                <uxap:headerContent>
+                    <HBox wrap="Wrap">
+                        <VBox class="sapUiMediumMarginEnd">
+                            <ObjectAttribute title="Client" text="{customerName}" />
+                            <ObjectAttribute title="Ville" text="{customerCity}" />
+                            <ObjectAttribute title="Catégorie" text="{productCategory}" />
+                        </VBox>
+                        <VBox class="sapUiMediumMarginEnd">
+                            <ObjectAttribute title="Montant" text="{ path: 'amount', type: 'sap.ui.model.type.Float', formatOptions: { groupingEnabled: true, maxFractionDigits: 2 } } {currency}" />
+                            <ObjectAttribute title="Quantité" text="{quantity}" />
+                            <ObjectAttribute title="Date création" text="{ path: 'createdAt', type: 'sap.ui.model.type.Date', formatOptions: { style: 'medium' } }" />
+                        </VBox>
+                    </HBox>
+                </uxap:headerContent>
+
+                <uxap:sections>
+
+                    <!--
+                        ========================================================
+                         SECTION 1 — Données ERP (simulées depuis S/4HANA)
+                        ========================================================
+                        Ces informations viennent du standard SAP.
+                        Dans un vrai projet, elles seraient lues via l'API
+                        A_SalesOrder de S/4HANA.
+                    -->
+                    <uxap:ObjectPageSection title="Données ERP (S/4HANA)" titleUppercase="false">
+                        <uxap:subSections>
+                            <uxap:ObjectPageSubSection>
+                                <uxap:blocks>
+                                    <VBox class="sapUiSmallMargin">
+                                        <MessageStrip
+                                            text="Ces données représentent les informations standard provenant de SAP S/4HANA (simulées dans ce POC)."
+                                            type="Information"
+                                            showIcon="true"
+                                            class="sapUiSmallMarginBottom" />
+                                        <layout:form.SimpleForm
+                                            editable="false"
+                                            layout="ResponsiveGridLayout"
+                                            columnsM="2"
+                                            columnsL="2">
+                                            <Label text="N° Commande" />
+                                            <Text text="{orderNumber}" />
+                                            <Label text="Client" />
+                                            <Text text="{customerName}" />
+                                            <Label text="Ville" />
+                                            <Text text="{customerCity}" />
+                                            <Label text="Catégorie produit" />
+                                            <Text text="{productCategory}" />
+                                            <Label text="Montant" />
+                                            <ObjectNumber number="{ path: 'amount', type: 'sap.ui.model.type.Float', formatOptions: { groupingEnabled: true, maxFractionDigits: 2 } }" unit="{currency}" emphasized="true" />
+                                            <Label text="Quantité" />
+                                            <Text text="{quantity}" />
+                                            <Label text="Statut" />
+                                            <ObjectStatus text="{status}" state="{= ${status} === 'Confirmée' ? 'Success' : (${status} === 'Annulée' ? 'Error' : (${status} === 'En attente' ? 'Warning' : 'Information')) }" />
+                                            <Label text="Date de création" />
+                                            <Text text="{ path: 'createdAt', type: 'sap.ui.model.type.Date', formatOptions: { style: 'long' } }" />
+                                        </layout:form.SimpleForm>
+                                    </VBox>
+                                </uxap:blocks>
+                            </uxap:ObjectPageSubSection>
+                        </uxap:subSections>
+                    </uxap:ObjectPageSection>
+
+                    <!--
+                        ========================================================
+                         SECTION 2 — Enrichissement side-by-side (logique BTP)
+                        ========================================================
+                        Ces informations n'existent PAS dans S/4HANA.
+                        Elles sont calculées par le handler CAP sur SAP BTP.
+                        C'est la valeur ajoutée de l'extension side-by-side.
+                    -->
+                    <uxap:ObjectPageSection title="Enrichissement BTP (Side-by-Side)" titleUppercase="false">
+                        <uxap:subSections>
+                            <uxap:ObjectPageSubSection>
+                                <uxap:blocks>
+                                    <VBox class="sapUiSmallMargin">
+                                        <MessageStrip
+                                            text="Ces données sont calculées par la logique métier spécifique déployée sur SAP BTP — elles n'existent pas dans S/4HANA."
+                                            type="Warning"
+                                            showIcon="true"
+                                            class="sapUiSmallMarginBottom" />
+                                        <layout:form.SimpleForm
+                                            editable="false"
+                                            layout="ResponsiveGridLayout"
+                                            columnsM="2"
+                                            columnsL="2">
+                                            <Label text="Priorité métier" />
+                                            <ObjectStatus
+                                                text="{priority}"
+                                                state="{= ${priority} === 'HIGH' ? 'Error' : (${priority} === 'MEDIUM' ? 'Warning' : 'Success') }"
+                                                icon="{= ${priority} === 'HIGH' ? 'sap-icon://warning' : (${priority} === 'MEDIUM' ? 'sap-icon://hint' : 'sap-icon://accept') }" />
+                                            <Label text="Score de risque" />
+                                            <HBox alignItems="Center">
+                                                <ObjectNumber number="{riskScore}" unit="/ 100"
+                                                    state="{= ${riskScore} > 60 ? 'Error' : (${riskScore} > 30 ? 'Warning' : 'Success') }" />
+                                                <ProgressIndicator
+                                                    percentValue="{riskScore}"
+                                                    displayValue="{riskScore} %"
+                                                    state="{= ${riskScore} > 60 ? 'Error' : (${riskScore} > 30 ? 'Warning' : 'Success') }"
+                                                    width="200px"
+                                                    class="sapUiSmallMarginBegin" />
+                                            </HBox>
+                                            <Label text="Règle de priorisation" />
+                                            <Text text="HIGH > 10 000 € | MEDIUM > 1 000 € | NORMAL ≤ 1 000 €" />
+                                            <Label text="Composantes du risque" />
+                                            <Text text="Montant (60%) + Statut de commande (40%)" />
+                                        </layout:form.SimpleForm>
+                                    </VBox>
+                                </uxap:blocks>
+                            </uxap:ObjectPageSubSection>
+                        </uxap:subSections>
+                    </uxap:ObjectPageSection>
+
+                    <!--
+                        ========================================================
+                         SECTION 3 — Intégration externe simulée
+                        ========================================================
+                        Simule un appel à un service de livraison tiers.
+                        Dans un vrai projet, ce serait un appel REST externe
+                        ou via SAP Integration Suite.
+                    -->
+                    <uxap:ObjectPageSection title="Suivi de livraison (Système externe)" titleUppercase="false">
+                        <uxap:subSections>
+                            <uxap:ObjectPageSubSection>
+                                <uxap:blocks>
+                                    <VBox class="sapUiSmallMargin">
+                                        <MessageStrip
+                                            text="Ces informations proviennent d'un système de livraison externe (simulé). En production, ce serait un appel API vers un transporteur ou un TMS."
+                                            type="Success"
+                                            showIcon="true"
+                                            class="sapUiSmallMarginBottom" />
+                                        <layout:form.SimpleForm id="deliveryForm"
+                                            editable="false"
+                                            layout="ResponsiveGridLayout"
+                                            columnsM="2"
+                                            columnsL="2">
+                                            <Label text="Transporteur" />
+                                            <Text id="deliveryCarrier" text="{deliveryModel>/carrier}" />
+                                            <Label text="N° de suivi" />
+                                            <Text id="deliveryTracking" text="{deliveryModel>/trackingNo}" />
+                                            <Label text="Statut livraison" />
+                                            <ObjectStatus id="deliveryStatus"
+                                                text="{deliveryModel>/status}"
+                                                state="{= ${deliveryModel>/status} === 'Livré' ? 'Success' : (${deliveryModel>/status} === 'Retard' ? 'Error' : 'Warning') }" />
+                                            <Label text="Livraison estimée" />
+                                            <Text id="deliveryETA" text="{deliveryModel>/estimatedDelivery}" />
+                                            <Label text="Dernière mise à jour" />
+                                            <Text id="deliveryLastUpdate" text="{deliveryModel>/lastUpdate}" />
+                                        </layout:form.SimpleForm>
+                                        <Button id="refreshDelivery"
+                                                text="Rafraîchir le statut de livraison"
+                                                icon="sap-icon://refresh"
+                                                type="Emphasized"
+                                                press=".onRefreshDelivery"
+                                                class="sapUiSmallMarginTop" />
+                                    </VBox>
+                                </uxap:blocks>
+                            </uxap:ObjectPageSubSection>
+                        </uxap:subSections>
+                    </uxap:ObjectPageSection>
+
+                </uxap:sections>
+
+            </uxap:ObjectPageLayout>
+        </content>
+
+    </Page>
+</mvc:View>

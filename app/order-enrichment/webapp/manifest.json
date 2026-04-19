@@ -1,0 +1,96 @@
+{
+    "_version": "1.65.0",
+    "sap.app": {
+        "id": "sap.btp.orderenrichment",
+        "type": "application",
+        "title": "Order Enrichment Dashboard",
+        "description": "Extension side-by-side — Enrichissement des commandes SAP S/4HANA via SAP BTP",
+        "applicationVersion": {
+            "version": "1.0.0"
+        },
+        "dataSources": {
+            "mainService": {
+                "uri": "/api/",
+                "type": "OData",
+                "settings": {
+                    "odataVersion": "4.0"
+                }
+            }
+        }
+    },
+    "sap.ui5": {
+        "dependencies": {
+            "minUI5Version": "1.120.0",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.ui.layout": {},
+                "sap.ui.table": {},
+                "sap.uxap": {},
+                "sap.f": {}
+            }
+        },
+        "models": {
+            "": {
+                "dataSource": "mainService",
+                "type": "sap.ui.model.odata.v4.ODataModel",
+                "settings": {
+                    "synchronizationMode": "None",
+                    "operationMode": "Server",
+                    "autoExpandSelect": true,
+                    "groupId": "$auto"
+                }
+            }
+        },
+        "rootView": {
+            "viewName": "sap.btp.orderenrichment.view.App",
+            "type": "XML",
+            "id": "app"
+        },
+        "routing": {
+            "config": {
+                "routerClass": "sap.m.routing.Router",
+                "type": "View",
+                "viewType": "XML",
+                "viewPath": "sap.btp.orderenrichment.view",
+                "controlId": "appControl",
+                "controlAggregation": "pages",
+                "async": true
+            },
+            "routes": [
+                {
+                    "name": "OrderList",
+                    "pattern": "",
+                    "target": "orderList"
+                },
+                {
+                    "name": "OrderDetail",
+                    "pattern": "Orders/{orderID}",
+                    "target": "orderDetail"
+                }
+            ],
+            "targets": {
+                "orderList": {
+                    "viewName": "OrderList",
+                    "viewLevel": 1
+                },
+                "orderDetail": {
+                    "viewName": "OrderDetail",
+                    "viewLevel": 2
+                }
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        }
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    }
+}

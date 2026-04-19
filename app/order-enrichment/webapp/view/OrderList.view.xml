@@ -1,0 +1,148 @@
+<!--
+    ============================================================================
+     PAGE PRINCIPALE — Liste des commandes enrichies
+    ============================================================================
+
+    Cette vue affiche les commandes provenant de la couche ERP (mockée)
+    enrichies par la logique side-by-side de SAP BTP :
+     - Priorité métier (HIGH / MEDIUM / NORMAL)
+     - Score de risque
+
+    Les filtres permettent de cibler rapidement les commandes prioritaires.
+-->
+<mvc:View
+    controllerName="sap.btp.orderenrichment.controller.OrderList"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.f"
+    xmlns:fb="sap.ui.comp.filterbar">
+
+    <Page
+        id="orderListPage"
+        title="Order Enrichment Dashboard"
+        titleLevel="H1"
+        showNavButton="false">
+
+        <headerContent>
+            <Title text="Extension Side-by-Side — SAP BTP" titleStyle="H5" class="sapUiSmallMarginEnd"/>
+            <ToolbarSpacer />
+        </headerContent>
+
+        <subHeader>
+            <Toolbar id="filterToolbar">
+                <Label text="Statut" labelFor="statusFilter"/>
+                <Select id="statusFilter"
+                        change=".onFilterChange"
+                        selectedKey="ALL">
+                    <core:Item key="ALL" text="Tous" />
+                    <core:Item key="Confirmée"  text="Confirmée" />
+                    <core:Item key="En cours"   text="En cours" />
+                    <core:Item key="En attente" text="En attente" />
+                    <core:Item key="Annulée"    text="Annulée" />
+                </Select>
+                <ToolbarSeparator />
+                <Label text="Priorité" labelFor="priorityFilter"/>
+                <Select id="priorityFilter"
+                        change=".onFilterChange"
+                        selectedKey="ALL">
+                    <core:Item key="ALL"    text="Toutes" />
+                    <core:Item key="HIGH"   text="Haute" />
+                    <core:Item key="MEDIUM" text="Moyenne" />
+                    <core:Item key="NORMAL" text="Normale" />
+                </Select>
+                <ToolbarSeparator />
+                <Label text="Trier par" labelFor="sortSelect"/>
+                <Select id="sortSelect"
+                        change=".onSortChange"
+                        selectedKey="amount-desc">
+                    <core:Item key="amount-desc"    text="Montant ↓" />
+                    <core:Item key="amount-asc"     text="Montant ↑" />
+                    <core:Item key="createdAt-desc" text="Date ↓" />
+                    <core:Item key="createdAt-asc"  text="Date ↑" />
+                </Select>
+            </Toolbar>
+        </subHeader>
+
+        <content>
+            <!-- Indicateurs clés (KPI) — synthèse enrichie côté BTP -->
+            <HBox class="sapUiMediumMargin" justifyContent="SpaceAround" wrap="Wrap">
+                <VBox class="sapUiSmallMargin" alignItems="Center">
+                    <ObjectNumber id="kpiTotal" number="{viewModel>/totalOrders}" unit="commandes" emphasized="true"/>
+                    <Label text="Total"/>
+                </VBox>
+                <VBox class="sapUiSmallMargin" alignItems="Center">
+                    <ObjectNumber id="kpiHigh" number="{viewModel>/highPriorityCount}" unit="HIGH" state="Error"/>
+                    <Label text="Priorité haute"/>
+                </VBox>
+                <VBox class="sapUiSmallMargin" alignItems="Center">
+                    <ObjectNumber id="kpiAmount" number="{viewModel>/totalAmount}" unit="EUR" emphasized="true"/>
+                    <Label text="Montant total"/>
+                </VBox>
+                <VBox class="sapUiSmallMargin" alignItems="Center">
+                    <ObjectNumber id="kpiAvgRisk" number="{viewModel>/avgRiskScore}" unit="/100" />
+                    <Label text="Risque moyen"/>
+                </VBox>
+            </HBox>
+
+            <!-- Tableau des commandes enrichies -->
+            <Table id="ordersTable"
+                   growing="true"
+                   growingThreshold="20"
+                   sticky="ColumnHeaders,HeaderToolbar"
+                   mode="SingleSelectMaster"
+                   selectionChange=".onOrderSelect"
+                   items="{
+                       path: '/Orders',
+                       sorter: { path: 'amount', descending: true }
+                   }">
+
+                <headerToolbar>
+                    <OverflowToolbar>
+                        <Title text="Commandes enrichies" level="H2" />
+                        <ToolbarSpacer />
+                        <SearchField id="searchField"
+                                     placeholder="Rechercher un client..."
+                                     liveChange=".onSearch"
+                                     width="300px" />
+                    </OverflowToolbar>
+                </headerToolbar>
+
+                <columns>
+                    <Column width="8em">  <Text text="N° Commande" />  </Column>
+                    <Column minScreenWidth="Tablet"> <Text text="Client" /> </Column>
+                    <Column minScreenWidth="Desktop"> <Text text="Ville" /> </Column>
+                    <Column hAlign="End"> <Text text="Montant" />     </Column>
+                    <Column width="8em">  <Text text="Statut" />      </Column>
+                    <Column width="8em">  <Text text="Priorité" />    </Column>
+                    <Column width="6em" hAlign="Center"> <Text text="Risque" /> </Column>
+                    <Column width="9em" minScreenWidth="Desktop"> <Text text="Date" /> </Column>
+                </columns>
+
+                <items>
+                    <ColumnListItem type="Navigation" press=".onOrderSelect">
+                        <cells>
+                            <Text text="{orderNumber}" />
+                            <Text text="{customerName}" />
+                            <Text text="{customerCity}" />
+                            <ObjectNumber number="{ path: 'amount', type: 'sap.ui.model.type.Float', formatOptions: { groupingEnabled: true, maxFractionDigits: 2 } }" unit="{currency}" />
+                            <ObjectStatus text="{status}" state="{= ${status} === 'Confirmée' ? 'Success' : (${status} === 'Annulée' ? 'Error' : (${status} === 'En attente' ? 'Warning' : 'Information')) }" />
+                            <ObjectStatus text="{priority}" state="{= ${priority} === 'HIGH' ? 'Error' : (${priority} === 'MEDIUM' ? 'Warning' : 'Success') }" icon="{= ${priority} === 'HIGH' ? 'sap-icon://warning' : (${priority} === 'MEDIUM' ? 'sap-icon://hint' : 'sap-icon://accept') }" />
+                            <ObjectNumber number="{riskScore}" state="{= ${riskScore} > 60 ? 'Error' : (${riskScore} > 30 ? 'Warning' : 'Success') }" />
+                            <Text text="{ path: 'createdAt', type: 'sap.ui.model.type.Date', formatOptions: { style: 'medium' } }" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </content>
+
+        <footer>
+            <Toolbar>
+                <ToolbarSpacer />
+                <Label text="Données ERP simulées — Enrichissement side-by-side SAP BTP"
+                       design="Bold" class="sapUiTinyMarginEnd" />
+            </Toolbar>
+        </footer>
+
+    </Page>
+</mvc:View>

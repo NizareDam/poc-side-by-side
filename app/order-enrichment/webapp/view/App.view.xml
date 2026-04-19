@@ -1,0 +1,12 @@
+<!--
+    ============================================================================
+     VUE RACINE — Shell de l'application
+    ============================================================================
+    Conteneur principal avec un sap.m.App pour la navigation.
+-->
+<mvc:View
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true">
+    <App id="appControl" />
+</mvc:View>

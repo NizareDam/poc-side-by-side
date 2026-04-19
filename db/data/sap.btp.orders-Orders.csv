@@ -1,0 +1,13 @@
+ID,orderNumber,customerName,customerCity,amount,currency,status,productCategory,quantity,priority,riskScore,createdAt
+f47ac10b-58cc-4372-a567-0e02b2c3d479,SO-10001,Schneider Électrique,Paris,15200.00,EUR,Confirmée,Automatisation,25,,,2026-01-15T09:30:00Z
+a1b2c3d4-e5f6-7890-abcd-ef1234567890,SO-10002,BASF Chimie,Ludwigshafen,480.00,EUR,En cours,Chimie,10,,,2026-02-03T14:20:00Z
+b2c3d4e5-f6a7-8901-bcde-f12345678901,SO-10003,Airbus Defence,Toulouse,87500.00,EUR,Confirmée,Aéronautique,2,,,2026-02-10T08:00:00Z
+c3d4e5f6-a7b8-9012-cdef-123456789012,SO-10004,Siemens Énergie,Munich,3200.00,EUR,En attente,Énergie,15,,,2026-02-18T11:45:00Z
+d4e5f6a7-b8c9-0123-defa-234567890123,SO-10005,Renault Group,Boulogne-Billancourt,920.00,EUR,Confirmée,Automobile,8,,,2026-03-01T10:15:00Z
+e5f6a7b8-c9d0-1234-efab-345678901234,SO-10006,Nestlé Suisse,Vevey,6450.00,EUR,Annulée,Agroalimentaire,50,,,2026-03-05T16:30:00Z
+f6a7b8c9-d0e1-2345-fabc-456789012345,SO-10007,Bosch Automotive,Stuttgart,12800.00,EUR,En cours,Automobile,30,,,2026-03-10T07:50:00Z
+a7b8c9d0-e1f2-3456-abcd-567890123456,SO-10008,TotalEnergies,La Défense,750.00,EUR,Confirmée,Énergie,5,,,2026-03-12T13:00:00Z
+b8c9d0e1-f2a3-4567-bcde-678901234567,SO-10009,Thales Défense,Gennevilliers,42000.00,EUR,En attente,Défense,1,,,2026-03-20T09:10:00Z
+c9d0e1f2-a3b4-5678-cdef-789012345678,SO-10010,Danone Nutrition,Paris,1850.00,EUR,Confirmée,Agroalimentaire,20,,,2026-03-25T15:40:00Z
+d0e1f2a3-b4c5-6789-defa-890123456789,SO-10011,Michelin Pneus,Clermont-Ferrand,5600.00,EUR,En cours,Automobile,40,,,2026-04-01T08:30:00Z
+e1f2a3b4-c5d6-7890-efab-901234567890,SO-10012,L'Oréal Luxe,Clichy,320.00,EUR,Confirmée,Cosmétique,12,,,2026-04-05T11:20:00Z
